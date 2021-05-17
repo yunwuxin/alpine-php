@@ -1,0 +1,83 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Docker-compose - 未命名文档</title>
+    
+<link rel="stylesheet" type="text/css" href="asset/plugins/theme-default/829.index.css"></head>
+<body>
+<div id="root"><div><div class="Loading__loading___1m_fZ"><div class="Loading__bar___21yOt" style="background: rgb(33, 186, 69); width: 0%; display: none;"><div class="Loading__peg___3Y_28"></div></div></div><div class="Loading__spinner___11Pm4"><div class="Loading__icon___3OOyu" style="display: none; border-color: #21ba45;"></div></div></div><div class="body--4cb30f26 with-sidebar--64a35dd2"><div class="sidebar--92cdcd4d"><div class="header--fbbaa9f2"><a class="title--8b08af4e" href="."><img src="logo.png" width="30" height="30">未命名文档</a><div class="search--783540ff"><input type="search" placeholder="请输入搜索关键词……" value=""></div></div><div class="body--4cb30f26"><div class="summary--54538abb"><div class="part--2f00bd41"><div class="title--3df1ba16">Available documentation</div><ul><li class=""><div class="item--9cbf6482"><div class="whole--9f70f484"></div><span class="space--8603ccbf"></span><a class="text--59d9f9de" href="IDE.html">IDE Integration</a></div></li><li class=""><div class="item--9cbf6482 active--c30e4dc0"><div class="whole--9f70f484"></div><span class="space--8603ccbf"></span><a class="text--59d9f9de" href="Docker-compose.html">Docker-compose</a></div></li><li class=""><div class="item--9cbf6482"><div class="whole--9f70f484"></div><span class="space--8603ccbf"></span><a class="text--59d9f9de" href="Schema.html">Images Schema</a></div></li><li class=""><div class="item--9cbf6482"><div class="whole--9f70f484"></div><span class="space--8603ccbf"></span><a class="text--59d9f9de" href="Pipeline.html">Production image Pipeline</a></div></li></ul></div></div></div><div class="copyright--2aa57f2d">本文档使用 <a href="https://x.topthink.com" target="_blank">顶想云</a> 构建</div></div><div class="main--6aaec551"><div class="toolbar--af3e5b9e"><h1>Docker-compose</h1></div><div class="markdown-body"><h1>Using Docker Compose</h1><p>Minimal Configuration:</p><pre><code class="language-YAML">version: '2'
+services:
+  fpm:
+      image: jorge07/alpine-php:7-dev
+      ports:
+        - "2244:22"
+        - "9000:9000"
+      volumes:
+        - "$PWD:/app"
+</code></pre><p>You can optionally add ENV params:</p><pre><code class="language-YAML">
+ ...
+   fpm:
+      environment:
+        - PHP_IDE_CONFIG=serverName=SomeName
+</code></pre><h1>Nginx integration</h1><p>This example is based on a <a href="http://symfony.com/" target="_blank">Symfony</a> project but can be what you want. Full example <a href="https://github.com/jorge07/ddd-playground" target="_blank">here</a></p><p>Project structure:</p><p><img src="https://raw.githubusercontent.com/jorge07/alpine-php/master/doc/images/folder-structure.png" alt="Tree"></p><p><em>etc/infrastructure/dev/nginx/demo.conf</em></p><pre><code class="language-nginx">server {
+ &nbsp;server_name demo.dev www.demo.dev;
+  root /app/web;
+
+  location / {
+     try_files $uri /app_dev.php$is_args$args;
+  }
+
+  location ~ ^/(app|app_dev|config)\.php(/|$) {
+
+     fastcgi_pass fpm:9000;
+     fastcgi_split_path_info ^(.+\.php)(/.*)$;
+     include fastcgi_params;
+
+     fastcgi_param  SCRIPT_FILENAME  $realpath_root$fastcgi_script_name;
+     fastcgi_param DOCUMENT_ROOT $realpath_root;
+  }
+}
+</code></pre><p><em>etc/infrastructure/dev/nginx/Dockerfile</em></p><pre><code class="language-Dockerfile"> FROM nginx:1.11-alpine
+
+ COPY demo.conf /etc/nginx/conf.d/default.conf
+</code></pre><p><em>/etc/infrastructure/dev/docker-compose.yml</em></p><pre><code class="language-YAML"> version: '2'
+ services:
+   nginx:
+     build: nginx
+     depends_on:
+       - fpm
+     ports:
+       - "80:80"
+     volumes:
+       - "$PWD/web:/app/web"
+
+   fpm:
+     image: jorge07/alpine-php:7-dev
+     ports:
+       - "2244:22"
+       - "9000:9000"
+     volumes:
+       - "$PWD:/app"
+</code></pre><p>Up enviroment</p><pre><code> $ docker-compose -f /etc/infrastructure/dev/docker-compose.yml up -d
+ 
+</code></pre></div><div class="navigation--93943883"><span class="prev--8f062b74">上一篇:<a href="IDE.html">IDE Integration</a></span><span class="next--1623c556">下一篇:<a href="Schema.html">Images Schema</a></span></div></div></div></div>
+<script type="application/payload+json">
+{"book":{"id":"3"},"summary":[{"title":"Available documentation","articles":[{"title":"IDE Integration","ref":"IDE.md","path":"IDE.html","children":[]},{"title":"Docker-compose","ref":"Docker-compose.md","path":"Docker-compose.html","children":[]},{"title":"Images Schema","ref":"Schema.md","path":"Schema.html","children":[]},{"title":"Production image Pipeline","ref":"Pipeline.md","path":"Pipeline.html","children":[]}]}],"config":{"structure":{"summary":"README.md"},"root":"doc"},"file":{"path":"Docker-compose.html","content":"# Using Docker Compose\n\nMinimal Configuration:\n\n```YAML\nversion: '2'\nservices:\n  fpm:\n      image: jorge07/alpine-php:7-dev\n      ports:\n        - \"2244:22\"\n        - \"9000:9000\"\n      volumes:\n        - \"$PWD:/app\"\n```\nYou can optionally add ENV params:\n```YAML\n\n ...\n   fpm:\n      environment:\n        - PHP_IDE_CONFIG=serverName=SomeName\n```\n# Nginx integration\n\nThis example is based on a [Symfony](http://symfony.com/) project but can be what you want. Full example [here](https://github.com/jorge07/ddd-playground)\n\nProject structure:\n\n![Tree](https://raw.githubusercontent.com/jorge07/alpine-php/master/doc/images/folder-structure.png)\n\n*etc/infrastructure/dev/nginx/demo.conf*\n\n```nginx\nserver {\n  server_name demo.dev www.demo.dev;\n  root /app/web;\n\n  location / {\n     try_files $uri /app_dev.php$is_args$args;\n  }\n\n  location ~ ^/(app|app_dev|config)\\.php(/|$) {\n\n     fastcgi_pass fpm:9000;\n     fastcgi_split_path_info ^(.+\\.php)(/.*)$;\n     include fastcgi_params;\n\n     fastcgi_param  SCRIPT_FILENAME  $realpath_root$fastcgi_script_name;\n     fastcgi_param DOCUMENT_ROOT $realpath_root;\n  }\n}\n```\n\n*etc/infrastructure/dev/nginx/Dockerfile*\n```Dockerfile\n FROM nginx:1.11-alpine\n\n COPY demo.conf /etc/nginx/conf.d/default.conf\n```\n*/etc/infrastructure/dev/docker-compose.yml*\n```YAML\n version: '2'\n services:\n   nginx:\n     build: nginx\n     depends_on:\n       - fpm\n     ports:\n       - \"80:80\"\n     volumes:\n       - \"$PWD/web:/app/web\"\n\n   fpm:\n     image: jorge07/alpine-php:7-dev\n     ports:\n       - \"2244:22\"\n       - \"9000:9000\"\n     volumes:\n       - \"$PWD:/app\"\n```\nUp enviroment\n\n     $ docker-compose -f /etc/infrastructure/dev/docker-compose.yml up -d\n     \n"},"options":{}}
+</script>
+
+<script src="https://jsdelivr.topthink.com/npm/lodash@4.17/lodash.min.js"></script>
+
+<script src="https://jsdelivr.topthink.com/npm/react@17/umd/react.production.min.js"></script>
+
+<script src="https://jsdelivr.topthink.com/npm/react-dom@17/umd/react-dom.production.min.js"></script>
+
+<script src="asset/index.js"></script>
+
+<script src="asset/plugins/theme-default/index.js"></script>
+
+<script type="text/javascript">
+    TopWrite.bootstrap();
+</script>
+
+
+</body></html>
