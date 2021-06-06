@@ -2,7 +2,7 @@
 
 ### Up container
 
-Run this in your project root path: 
+Run this in your project root path: ~~~
     
     docker run -itd --name php7 -v $PWD:/app -p 2244:22 jorge07/alpine-php:7.4-dev
 
