@@ -13,7 +13,9 @@ services:
       volumes:
         - "$PWD:/app"
 ```
+
 You can optionally add ENV params:
+
 ```YAML
 
  ...
@@ -21,6 +23,7 @@ You can optionally add ENV params:
       environment:
         - PHP_IDE_CONFIG=serverName=SomeName
 ```
+
 # Nginx integration
 
 This example is based on a [Symfony](http://symfony.com/) project but can be what you want. Full example [here](https://github.com/jorge07/ddd-playground)
@@ -53,12 +56,15 @@ server {
 ```
 
 *etc/infrastructure/dev/nginx/Dockerfile*
+
 ```Dockerfile
  FROM nginx:1.11-alpine
 
  COPY demo.conf /etc/nginx/conf.d/default.conf
 ```
+
 */etc/infrastructure/dev/docker-compose.yml*
+
 ```YAML
  version: '2'
  services:
@@ -79,7 +85,11 @@ server {
      volumes:
        - "$PWD:/app"
 ```
+
 Up enviroment
 
-     $ docker-compose -f /etc/infrastructure/dev/docker-compose.yml up -d
-     
+```
+ $ docker-compose -f /etc/infrastructure/dev/docker-compose.yml up -d
+ 
+```
+

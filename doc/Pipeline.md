@@ -87,21 +87,28 @@ COPY web /app/web
 
 **Build image**
 
-    docker build -t build-${RELEASE} -f Dockerfile.test .
+```
+docker build -t build-${RELEASE} -f Dockerfile.test .
+```
 
 **Up container**
 
-    docker run -d --name build-container-${RELEASE} build-${RELEASE}
+```
+docker run -d --name build-container-${RELEASE} build-${RELEASE}
+```
 
 **Extract artifact**
 
-    docker cp build-container-${RELEASE}:/app artifacts/${RELEASE}/
+```
+docker cp build-container-${RELEASE}:/app artifacts/${RELEASE}/
+```
 
 **Clean environment**
 
-    docker kill build-container-${RELEASE}
-    docker rmi build-build-${RELEASE}
-
+```
+docker kill build-container-${RELEASE}
+docker rmi build-build-${RELEASE}
+```
 
 ## The production image
 
@@ -130,8 +137,11 @@ RUN php /app/bin/console c:w
 
 **Build and Store final production image**
 
-    docker build -t prod-${RELEASE} -f Dockerfile.prod artifacts/${RELEASE}/
-    
-    docker login -u USER -p PASS
-    
-    docker push prod-${RELEASE}
+```
+docker build -t prod-${RELEASE} -f Dockerfile.prod artifacts/${RELEASE}/
+
+docker login -u USER -p PASS
+
+docker push prod-${RELEASE}
+```
+
