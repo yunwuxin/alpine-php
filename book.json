@@ -2,27 +2,10 @@
     "structure": {
         "summary": "README.md"
     },
-    "root": "doc"
+    "root": "doc",
+    "theme": "classic",
+    "plugins": [
+        "highlight",
+        "tex"
+    ]
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
