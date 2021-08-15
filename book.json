@@ -3,7 +3,7 @@
         "summary": "README.md"
     },
     "root": "doc",
-    "theme": "classic",
+    "theme": "maxime",
     "plugins": [
         "highlight",
         "tex"
