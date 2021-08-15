@@ -1,18 +1,105 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Using Shortcuts and serverless to build a personal Apple Health API - Untitled</title>
+<!DOCTYPE html><html lang="en" data-theme="light"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Using Shortcuts and serverless to build a personal Apple Health API - 未命名文档</title>
     
     
         <script src="asset/theme.js"></script>
     
-</head>
+<link rel="stylesheet" type="text/css" href="asset/plugins/theme-maxime/66.index.css"><style data-rh="true">
+:root {
+    --ttw-primary-color: #3c60ff;
+}
+</style><style data-styled="active" data-styled-version="5.3.0"></style><link rel="stylesheet" type="text/css" href="asset/plugins/highlight/81.index.css"><script charset="utf-8" data-webpack="TopWritePlugins = typeof TopWritePlugins === &quot;undefined&quot; ? {} : TopWritePlugins; TopWritePlugins['highlight']:chunk-81" src="asset/plugins/highlight/81.index.js"></script></head>
 <body>
-<div id="root"></div>
+<div id="root"><div class="sc-dlnjwi gbDzzx"><div class="sc-hKFxyN kksiKu"></div><div class="sc-eCApnc intbbb"><div class="sc-jSFjdj jcTaHb"><div class="sc-gKAaRy hydYaP"><div class="sc-bdnxRM jvCTkj"><a class="sc-pNWdM XJxhY" href="./"><img src="logo.png" width="45" height="45" alt="logo"></a><div class="sc-gtsrHT gfuSqG"><h3><a href="#top">Using Shortcuts and serverless to build a personal Apple Health API</a></h3></div></div><div class="sc-iCoGMd kMthTr"><div class="sc-fujyAs eysHZq"><img src="asset/plugins/theme-maxime/media/sun.7ac63355.svg"></div></div></div></div></div></div><div class="sc-fnVZcZ hmqpxx"><h1>Using Shortcuts and serverless to build a personal Apple Health API</h1><div class="sc-hBMUJo syKsX"><span class="sc-ksluID kFmqyc"></span></div></div><div class="sc-bqGGPW iPexDg markdown--a20d759b"><article><h1><a aria-hidden="true" tabindex="-1" class="anchor" id="production-artifact-pipeline"></a>Production artifact pipeline</h1><p>This pipeline its just an example, for a more accurate approach see <a href="https://github.com/jorge07/ddd-playground">here</a></p><h3><a aria-hidden="true" tabindex="-1" class="anchor" id="using-multi-stage-build"></a>Using Multi stage build</h3><p><strong>Dockerfile.build</strong></p><h1><a aria-hidden="true" tabindex="-1" class="anchor" id="production-artifact-pipeline-1"></a>Production artifact pipeline</h1><p>This pipeline its just an example, for a more accurate approach see&nbsp;<a href="https://github.com/jorge07/ddd-playground">here</a></p><h3><a aria-hidden="true" tabindex="-1" class="anchor" id="using-multi-stage-build-1"></a><a href=""></a>Using Multi stage build</h3><p><strong>Dockerfile.build</strong></p><pre><code class="language-Dockerfile">FROM jorge07/alpine-php:7.1-dev-sf as builder
+
+WORKDIR /api
+</code></pre><p>\</p><pre><code class="language-Dockerfile">FROM jorge07/alpine-php:7.1-dev-sf as builder
+
+WORKDIR /api
+
+ENV SYMFONY_ENV prod
+
+COPY app /api/app
+COPY bin /api/bin
+COPY var /api/var
+
+COPY composer.json /api
+COPY composer.lock /api
+
+RUN composer install --no-ansi --no-scripts --no-dev --no-interaction --no-progress --optimize-autoloader
+
+COPY src /api/src
+COPY web /api/web
+
+RUN composer run-script post-install-cmd \
+    &amp;&amp; rm -rf /api/web/app_dev.php \
+    &amp;&amp; rm -rf /api/web/config.php
+
+FROM jorge07/alpine-php:7.1
+
+ENV SYMFONY_ENV prod
+
+COPY --from builder /api/app/app /app/app
+COPY --from builder /api/app/bin /app/bin
+COPY --from builder /api/app/var /app/var
+COPY --from builder /api/app/web /app/web
+COPY --from builder /api/app/src /app/src
+COPY --from builder /api/app/vendor /app/vendor
+
+RUN rm -rf /app/var/cache/* &amp;&amp; php /app/bin/console c:c
+</code></pre><h2><a aria-hidden="true" tabindex="-1" class="anchor" id="older-versions"></a>Older versions</h2><h3><a aria-hidden="true" tabindex="-1" class="anchor" id="build-environment"></a>Build environment</h3><p>I recommend build the artifact in the <code>jorge07/alpine-php:*-dev</code> image.</p><p><strong>Dockerfile.build</strong></p><pre><code class="language-Dockerfile">FROM jorge07/alpine-php:7-dev
+
+ENV SYMFONY_ENV prod
+
+COPY app /app/app
+COPY parameters.yml /app/app/config/parameters.yml
+COPY bin /app/bin
+COPY var /app/var
+
+COPY composer.json /app
+COPY composer.lock /app
+
+RUN composer install --no-ansi --no-scripts --no-dev --no-interaction --no-progress --optimize-autoloader
+
+COPY src /app/src
+COPY web /app/web
+
+RUN php /app/bin/console c:w
+</code></pre><h4><a aria-hidden="true" tabindex="-1" class="anchor" id="important"></a>Important</h4><p>To optimize build times using <a href="https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#/build-cache">Docker cache</a> I recommend add the src folders at the end of the <em>Dockerfile</em> after run <code>composer</code> and or <code>npm</code>.</p><pre><code class="language-Dockerfile">RUN composer install --no-ansi --no-scripts --no-dev --no-interaction --no-progress --optimize-autoloader
+
+COPY src /app/src
+COPY web /app/web
+</code></pre><h3><a aria-hidden="true" tabindex="-1" class="anchor" id="build-artifact"></a>Build Artifact</h3><p><strong>Build image</strong></p><pre><code>docker build -t build-${RELEASE} -f Dockerfile.test .
+</code></pre><p><strong>Up container</strong></p><pre><code>docker run -d --name build-container-${RELEASE} build-${RELEASE}
+</code></pre><p><strong>Extract artifact</strong></p><pre><code>docker cp build-container-${RELEASE}:/app artifacts/${RELEASE}/
+</code></pre><p><strong>Clean environment</strong></p><pre><code>docker kill build-container-${RELEASE}
+docker rmi build-build-${RELEASE}
+</code></pre><h2><a aria-hidden="true" tabindex="-1" class="anchor" id="the-production-image"></a>The production image</h2><p>Extend Image. Add you PHP configuration and copy the entire artifact.</p><p><em>Dockerfile.prod</em></p><pre><code class="language-Dockerfile">FROM jorge07/alpine-php:7
+
+COPY config/php/php.ini /etc/php7/conf.d/50-setting.ini
+COPY config/php/php-fpm.conf /etc/php7/php-fpm.conf
+
+ENV SYMFONY_ENV prod
+
+COPY app/app /app/app
+COPY fpm/parameters.yml /app/app/config/parameters.yml
+COPY app/bin /app/bin
+COPY app/var /app/var
+COPY app/web /app/web
+COPY app/src /app/src
+COPY app/vendor /app/vendor
+
+RUN php /app/bin/console c:w
+</code></pre><p><strong>Build and Store final production image</strong></p><pre><code>docker build -t prod-${RELEASE} -f Dockerfile.prod artifacts/${RELEASE}/
+
+docker login -u USER -p PASS
+
+docker push prod-${RELEASE}
+</code></pre></article><aside><ul><li><p><a href="#production-artifact-pipeline">Production artifact pipeline</a></p><ul><li><ul><li><a href="#using-multi-stage-build">Using Multi stage build</a></li></ul></li></ul></li><li><p><a href="#production-artifact-pipeline-1">Production artifact pipeline</a></p><ul><li><ul><li><a href="#using-multi-stage-build-1">Using Multi stage build</a></li></ul></li><li><p><a href="#older-versions">Older versions</a></p><ul><li><p><a href="#build-environment">Build environment</a></p><ul><li><a href="#important">Important</a></li></ul></li><li><p><a href="#build-artifact">Build Artifact</a></p></li></ul></li><li><p><a href="#the-production-image">The production image</a></p></li></ul></li></ul></aside></div><div class="sc-fFSPTT eEJWPz"><div class="sc-bkbkJK eraKfR"><div class="sc-iemWCZ hKymwP"><hr><div class="sc-dIvrsQ biCrYn"><div>本文档使用 <a href="https://x.topthink.com" target="_blank">顶想云</a> 构建</div><img class="sc-hHEiqL ccTnQh" src="logo.png" width="35" height="35" alt="logo"></div></div></div></div></div>
 <script type="application/payload+json">
-{"book":{"id":"10"},"summary":[{"title":"Featured","articles":[{"title":"IDE Integration","ref":"IDE.md","path":"IDE.html","children":[]},{"title":"Docker-compose","ref":"Docker-compose.md","path":"Docker-compose.html","children":[]},{"title":"Images Schema","ref":"Schema.md","path":"Schema.html","children":[]},{"title":"Using Shortcuts and serverless to build a personal Apple Health API","ref":"Pipeline.md","path":"Pipeline.html","children":[]}]}],"config":{"structure":{"summary":"README.md"},"root":"doc","theme":"maxime","plugins":["highlight"]},"file":{"path":"Pipeline.html","content":"# Production artifact pipeline\n\nThis pipeline its just an example, for a more accurate approach see [here](https:\/\/github.com\/jorge07\/ddd-playground)\n\n### Using Multi stage build\n\n**Dockerfile.build**\n\n\n# Production artifact pipeline\n\nThis pipeline its just an example, for a more accurate approach see [here](https:\/\/github.com\/jorge07\/ddd-playground)\n\n### []()Using Multi stage build\n\n**Dockerfile.build**\n\n```Dockerfile\nFROM jorge07\/alpine-php:7.1-dev-sf as builder\n\nWORKDIR \/api\n```\n\n\\\n\n\n\n```Dockerfile\nFROM jorge07\/alpine-php:7.1-dev-sf as builder\n\nWORKDIR \/api\n\nENV SYMFONY_ENV prod\n\nCOPY app \/api\/app\nCOPY bin \/api\/bin\nCOPY var \/api\/var\n\nCOPY composer.json \/api\nCOPY composer.lock \/api\n\nRUN composer install --no-ansi --no-scripts --no-dev --no-interaction --no-progress --optimize-autoloader\n\nCOPY src \/api\/src\nCOPY web \/api\/web\n\nRUN composer run-script post-install-cmd \\\n    && rm -rf \/api\/web\/app_dev.php \\\n    && rm -rf \/api\/web\/config.php\n\nFROM jorge07\/alpine-php:7.1\n\nENV SYMFONY_ENV prod\n\nCOPY --from builder \/api\/app\/app \/app\/app\nCOPY --from builder \/api\/app\/bin \/app\/bin\nCOPY --from builder \/api\/app\/var \/app\/var\nCOPY --from builder \/api\/app\/web \/app\/web\nCOPY --from builder \/api\/app\/src \/app\/src\nCOPY --from builder \/api\/app\/vendor \/app\/vendor\n\nRUN rm -rf \/app\/var\/cache\/* && php \/app\/bin\/console c:c\n```\n\n## Older versions\n\n### Build environment\n\nI recommend build the artifact in the `jorge07\/alpine-php:*-dev` image.\n\n**Dockerfile.build**\n\n```Dockerfile\nFROM jorge07\/alpine-php:7-dev\n\nENV SYMFONY_ENV prod\n\nCOPY app \/app\/app\nCOPY parameters.yml \/app\/app\/config\/parameters.yml\nCOPY bin \/app\/bin\nCOPY var \/app\/var\n\nCOPY composer.json \/app\nCOPY composer.lock \/app\n\nRUN composer install --no-ansi --no-scripts --no-dev --no-interaction --no-progress --optimize-autoloader\n\nCOPY src \/app\/src\nCOPY web \/app\/web\n\nRUN php \/app\/bin\/console c:w\n```\n\n#### Important\n\nTo optimize build times using [Docker cache](https:\/\/docs.docker.com\/engine\/userguide\/eng-image\/dockerfile_best-practices\/#\/build-cache) I recommend add the src folders at the end of the *Dockerfile* after run `composer` and or `npm`.\n\n```Dockerfile\nRUN composer install --no-ansi --no-scripts --no-dev --no-interaction --no-progress --optimize-autoloader\n\nCOPY src \/app\/src\nCOPY web \/app\/web\n```\n\n### Build Artifact\n\n**Build image**\n\n```\ndocker build -t build-${RELEASE} -f Dockerfile.test .\n```\n\n**Up container**\n\n```\ndocker run -d --name build-container-${RELEASE} build-${RELEASE}\n```\n\n**Extract artifact**\n\n```\ndocker cp build-container-${RELEASE}:\/app artifacts\/${RELEASE}\/\n```\n\n**Clean environment**\n\n```\ndocker kill build-container-${RELEASE}\ndocker rmi build-build-${RELEASE}\n```\n\n## The production image\n\nExtend Image. Add you PHP configuration and copy the entire artifact.\n\n*Dockerfile.prod*\n\n```Dockerfile\nFROM jorge07\/alpine-php:7\n\nCOPY config\/php\/php.ini \/etc\/php7\/conf.d\/50-setting.ini\nCOPY config\/php\/php-fpm.conf \/etc\/php7\/php-fpm.conf\n\nENV SYMFONY_ENV prod\n\nCOPY app\/app \/app\/app\nCOPY fpm\/parameters.yml \/app\/app\/config\/parameters.yml\nCOPY app\/bin \/app\/bin\nCOPY app\/var \/app\/var\nCOPY app\/web \/app\/web\nCOPY app\/src \/app\/src\nCOPY app\/vendor \/app\/vendor\n\nRUN php \/app\/bin\/console c:w\n```\n\n**Build and Store final production image**\n\n```\ndocker build -t prod-${RELEASE} -f Dockerfile.prod artifacts\/${RELEASE}\/\n\ndocker login -u USER -p PASS\n\ndocker push prod-${RELEASE}\n```\n\n","meta":{"mtime":""}},"options":{}}
+{"book":{"id":"6rqjd5"},"summary":[{"title":"Featured","articles":[{"title":"IDE Integration","ref":"IDE.md","path":"IDE.html","children":[]},{"title":"Docker-compose","ref":"Docker-compose.md","path":"Docker-compose.html","children":[]},{"title":"Images Schema","ref":"Schema.md","path":"Schema.html","children":[]},{"title":"Using Shortcuts and serverless to build a personal Apple Health API","ref":"Pipeline.md","path":"Pipeline.html","children":[]}]}],"config":{"structure":{"summary":"README.md"},"root":"doc","theme":"maxime","plugins":["highlight"]},"file":{"path":"Pipeline.html","content":"# Production artifact pipeline\n\nThis pipeline its just an example, for a more accurate approach see [here](https:\/\/github.com\/jorge07\/ddd-playground)\n\n### Using Multi stage build\n\n**Dockerfile.build**\n\n\n# Production artifact pipeline\n\nThis pipeline its just an example, for a more accurate approach see [here](https:\/\/github.com\/jorge07\/ddd-playground)\n\n### []()Using Multi stage build\n\n**Dockerfile.build**\n\n```Dockerfile\nFROM jorge07\/alpine-php:7.1-dev-sf as builder\n\nWORKDIR \/api\n```\n\n\\\n\n\n\n```Dockerfile\nFROM jorge07\/alpine-php:7.1-dev-sf as builder\n\nWORKDIR \/api\n\nENV SYMFONY_ENV prod\n\nCOPY app \/api\/app\nCOPY bin \/api\/bin\nCOPY var \/api\/var\n\nCOPY composer.json \/api\nCOPY composer.lock \/api\n\nRUN composer install --no-ansi --no-scripts --no-dev --no-interaction --no-progress --optimize-autoloader\n\nCOPY src \/api\/src\nCOPY web \/api\/web\n\nRUN composer run-script post-install-cmd \\\n    && rm -rf \/api\/web\/app_dev.php \\\n    && rm -rf \/api\/web\/config.php\n\nFROM jorge07\/alpine-php:7.1\n\nENV SYMFONY_ENV prod\n\nCOPY --from builder \/api\/app\/app \/app\/app\nCOPY --from builder \/api\/app\/bin \/app\/bin\nCOPY --from builder \/api\/app\/var \/app\/var\nCOPY --from builder \/api\/app\/web \/app\/web\nCOPY --from builder \/api\/app\/src \/app\/src\nCOPY --from builder \/api\/app\/vendor \/app\/vendor\n\nRUN rm -rf \/app\/var\/cache\/* && php \/app\/bin\/console c:c\n```\n\n## Older versions\n\n### Build environment\n\nI recommend build the artifact in the `jorge07\/alpine-php:*-dev` image.\n\n**Dockerfile.build**\n\n```Dockerfile\nFROM jorge07\/alpine-php:7-dev\n\nENV SYMFONY_ENV prod\n\nCOPY app \/app\/app\nCOPY parameters.yml \/app\/app\/config\/parameters.yml\nCOPY bin \/app\/bin\nCOPY var \/app\/var\n\nCOPY composer.json \/app\nCOPY composer.lock \/app\n\nRUN composer install --no-ansi --no-scripts --no-dev --no-interaction --no-progress --optimize-autoloader\n\nCOPY src \/app\/src\nCOPY web \/app\/web\n\nRUN php \/app\/bin\/console c:w\n```\n\n#### Important\n\nTo optimize build times using [Docker cache](https:\/\/docs.docker.com\/engine\/userguide\/eng-image\/dockerfile_best-practices\/#\/build-cache) I recommend add the src folders at the end of the *Dockerfile* after run `composer` and or `npm`.\n\n```Dockerfile\nRUN composer install --no-ansi --no-scripts --no-dev --no-interaction --no-progress --optimize-autoloader\n\nCOPY src \/app\/src\nCOPY web \/app\/web\n```\n\n### Build Artifact\n\n**Build image**\n\n```\ndocker build -t build-${RELEASE} -f Dockerfile.test .\n```\n\n**Up container**\n\n```\ndocker run -d --name build-container-${RELEASE} build-${RELEASE}\n```\n\n**Extract artifact**\n\n```\ndocker cp build-container-${RELEASE}:\/app artifacts\/${RELEASE}\/\n```\n\n**Clean environment**\n\n```\ndocker kill build-container-${RELEASE}\ndocker rmi build-build-${RELEASE}\n```\n\n## The production image\n\nExtend Image. Add you PHP configuration and copy the entire artifact.\n\n*Dockerfile.prod*\n\n```Dockerfile\nFROM jorge07\/alpine-php:7\n\nCOPY config\/php\/php.ini \/etc\/php7\/conf.d\/50-setting.ini\nCOPY config\/php\/php-fpm.conf \/etc\/php7\/php-fpm.conf\n\nENV SYMFONY_ENV prod\n\nCOPY app\/app \/app\/app\nCOPY fpm\/parameters.yml \/app\/app\/config\/parameters.yml\nCOPY app\/bin \/app\/bin\nCOPY app\/var \/app\/var\nCOPY app\/web \/app\/web\nCOPY app\/src \/app\/src\nCOPY app\/vendor \/app\/vendor\n\nRUN php \/app\/bin\/console c:w\n```\n\n**Build and Store final production image**\n\n```\ndocker build -t prod-${RELEASE} -f Dockerfile.prod artifacts\/${RELEASE}\/\n\ndocker login -u USER -p PASS\n\ndocker push prod-${RELEASE}\n```\n\n","meta":{"mtime":""}},"options":{}}
 </script>
 
 <script src="https://jsdelivr.topthink.com/npm/lodash@4.17/lodash.min.js"></script>
@@ -25,8 +112,11 @@
 
 <script src="asset/plugins/highlight/index.js"></script>
 
+<script src="asset/plugins/theme-maxime/index.js"></script>
+
 <script type="text/javascript">
     TopWrite.bootstrap();
 </script>
-</body>
-</html>
+
+
+</body></html>
