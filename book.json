@@ -11,7 +11,7 @@
         "upyun": {
             "bucket": "topwrite-test",
             "username": "webpack",
-            "password": "@encrypted:U2FsdGVkX1\/bK1zTCFDlM2YOnFfoHsf8j1ceszh4PndrBeMw67rShO399AeLN\/8eiAP98i\/3i7NqMeZQpt9ajg=="
+            "password": "@encrypted:U2FsdGVkX1\/5eI4Q+slcHNhYYoghfoCS2V09yOHI2YZD44v1aoRF1TeVNeVfc2BWltxHPRL2LUJGNbuWAsqtKw=="
         }
     },
     "root": "doc"
