@@ -2,9 +2,17 @@
     "structure": {
         "summary": "README.md"
     },
-    "root": "doc",
     "theme": "maxime",
     "plugins": [
-        "highlight"
-    ]
+        "highlight",
+        "upyun"
+    ],
+    "pluginsConfig": {
+        "upyun": {
+            "bucket": "topwrite-test",
+            "username": "webpack",
+            "password": "@encrypted:U2FsdGVkX1\/bK1zTCFDlM2YOnFfoHsf8j1ceszh4PndrBeMw67rShO399AeLN\/8eiAP98i\/3i7NqMeZQpt9ajg=="
+        }
+    },
+    "root": "doc"
 }
