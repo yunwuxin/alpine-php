@@ -2,7 +2,7 @@
     "structure": {
         "summary": "README.md"
     },
-    "theme": "classic",
+    "theme": "maxime",
     "plugins": [
         "highlight",
         "upyun"
