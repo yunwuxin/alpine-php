@@ -5,7 +5,8 @@
     "theme": "maxime",
     "plugins": [
         "highlight",
-        "upyun"
+        "upyun",
+        "lunrjs"
     ],
     "pluginsConfig": {
         "upyun": {
