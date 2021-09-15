@@ -2,8 +2,10 @@
     "structure": {
         "summary": "README.md"
     },
+    "theme": "classic",
     "plugins": [
-        "highlight"
+        "highlight",
+        "lunrjs"
     ],
     "pluginsConfig": {
         "upyun": {

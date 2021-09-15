@@ -1,3 +1,6 @@
+---
+---
+
 # Production artifact pipeline
 
 This pipeline its just an example, for a more accurate approach see [here](https://github.com/jorge07/ddd-playground)
@@ -6,12 +9,11 @@ This pipeline its just an example, for a more accurate approach see [here](https
 
 **Dockerfile.build**
 
-
 # Production artifact pipeline
 
 This pipeline its just an example, for a more accurate approach see [here](https://github.com/jorge07/ddd-playground)
 
-### []()Using Multi stage build
+### Using Multi stage build
 
 **Dockerfile.build**
 
@@ -21,9 +23,7 @@ FROM jorge07/alpine-php:7.1-dev-sf as builder
 WORKDIR /api
 ```
 
-\
-
-
+\\
 
 ```Dockerfile
 FROM jorge07/alpine-php:7.1-dev-sf as builder

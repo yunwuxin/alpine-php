@@ -3,7 +3,6 @@
 2be2abcbc4f8: Layer already exists22
 76505e8b6cba: Layer already exists
 a2dd23c6bbbc: Layer already exists
-1
 
 #
 
@@ -38,13 +37,7 @@ a2dd23c6bbbc: Layer already exists
   分
   单位
 
-<<<<<<< HEAD
-![](images/screenshot\_1629526535766.png)2
-
-## fefefef
-=======
   分
->>>>>>> e657e54 (Update book.json, doc/Docker-compose.md, doc/IDE.md, doc/Pipeline.md, doc/README.md, doc/Schema.md)
 
 fefefefe503: Layer already exists
 
