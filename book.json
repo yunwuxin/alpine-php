@@ -2,11 +2,8 @@
     "structure": {
         "summary": "README.md"
     },
-    "theme": "maxime",
     "plugins": [
-        "highlight",
-        "upyun",
-        "lunrjs"
+        "highlight"
     ],
     "pluginsConfig": {
         "upyun": {
