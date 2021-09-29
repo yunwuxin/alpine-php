@@ -5,13 +5,15 @@
     "theme": "classic",
     "plugins": [
         "highlight",
-        "lunrjs"
+        "lunrjs",
+        "upyun"
     ],
     "pluginsConfig": {
         "upyun": {
             "bucket": "topwrite-test",
             "username": "webpack",
-            "password": "@encrypted:U2FsdGVkX1\/VM\/XVKWj3EwboAAjS850WhPC7G9GXzLHUeMf7IExBGubwdh9lNIO7AswI8dKr0IcVLFaliJOHSA=="
+            "password": "@encrypted:U2FsdGVkX1\/t+MQRkNfFT\/IJto49OnyZoraUlMckWvJVOVHHmqHyabDM3Mm\/nWuHvqIN2l6FP\/+ApcKlu8IgUg==",
+            "path": "abd"
         }
     },
     "root": "doc"
