@@ -11,8 +11,8 @@
     "pluginsConfig": {
         "upyun": {
             "bucket": "topwrite-test",
-            "username": "webpack",
-            "password": "@encrypted:U2FsdGVkX1\/t+MQRkNfFT\/IJto49OnyZoraUlMckWvJVOVHHmqHyabDM3Mm\/nWuHvqIN2l6FP\/+ApcKlu8IgUg==",
+            "username": "test",
+            "password": "@encrypted:U2FsdGVkX1+Y7gICCrxSiGPfT+PJSNRyTAzmemNRvw0z4PPtKngGv9OPM67XUYE8HJQovUCKJEuSoajaMiVF2Q==",
             "path": "abd"
         }
     },
